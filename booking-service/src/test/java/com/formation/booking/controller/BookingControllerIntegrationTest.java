@@ -190,6 +190,30 @@ class BookingControllerIntegrationTest {
                 .andExpect(jsonPath("$.fieldErrors.userEmail").exists());
     }
 
+    @Test
+    void cancel_horsDelais_retourne409() throws Exception {
+        ClassDto fitnessClass = buildClass(5, 10, new BigDecimal("15.00"), LocalDateTime.now().plusDays(3));
+        when(classClient.getClassById(eq(1L))).thenReturn(fitnessClass);
+        doNothing().when(classClient).increment(eq(1L), eq(1));
+        when(notificationClient.send(any())).thenReturn(null);
+
+        BookingRequest request = new BookingRequest(1L, "john@example.com", "John Doe", 1L, 1);
+        String response = mockMvc.perform(post("/api/bookings")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(request)))
+                .andExpect(status().isCreated())
+                .andReturn().getResponse().getContentAsString();
+        Long bookingId = objectMapper.readTree(response).get("id").asLong();
+
+        com.formation.booking.model.Booking persisted = bookingRepository.findById(bookingId).orElseThrow();
+        persisted.setCancellationDeadline(java.time.LocalDateTime.now().minusMinutes(5));
+        bookingRepository.save(persisted);
+
+        mockMvc.perform(patch("/api/bookings/{id}/cancel", bookingId))
+                .andExpect(status().isConflict())
+                .andExpect(jsonPath("$.message").value("L'annulation de la reservation " + bookingId + " n'est plus autorisee (delai depasse)"));
+    }
+
     private static FeignException.NotFound notFoundException() {
         feign.Request request = feign.Request.create(feign.Request.HttpMethod.GET,
                 "http://class-service/api/classes/999", java.util.Map.of(), null,
