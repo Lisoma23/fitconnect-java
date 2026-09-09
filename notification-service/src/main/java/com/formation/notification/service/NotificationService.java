@@ -32,7 +32,9 @@ public class NotificationService {
 
     @Transactional(readOnly = true)
     public List<NotificationResponse> findByUserId(Long userId) {
-        return notificationRepository.findByUserId(userId).stream()
+        List<Notification> notifications = notificationRepository.findByUserId(userId);
+
+        return notifications.stream()
                 .map(NotificationMapper::toResponse)
                 .toList();
     }
