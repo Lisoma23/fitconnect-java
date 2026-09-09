@@ -33,9 +33,7 @@ public class NotificationService {
     @Transactional(readOnly = true)
     public List<NotificationResponse> findByUserId(Long userId) {
         List<Notification> notifications = notificationRepository.findByUserId(userId);
-        if (notifications.isEmpty()) {
-            return List.of();
-        }
+
         return notifications.stream()
                 .map(NotificationMapper::toResponse)
                 .toList();
