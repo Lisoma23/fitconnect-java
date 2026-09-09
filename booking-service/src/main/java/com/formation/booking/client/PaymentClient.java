@@ -2,6 +2,7 @@ package com.formation.booking.client;
 
 import com.formation.booking.dto.PaymentDto;
 import org.springframework.cloud.openfeign.FeignClient;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -9,12 +10,16 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 
 import java.math.BigDecimal;
+import java.util.List;
 
 @FeignClient(name = "payment-service")
 public interface PaymentClient {
 
     @PostMapping("/api/payments")
     PaymentDto processPayment(@RequestBody PaymentRequest request);
+
+    @GetMapping("/api/payments/booking/{bookingId}")
+    List<PaymentDto> findByBookingId(@PathVariable("bookingId") Long bookingId);
 
     @RequestMapping(method = RequestMethod.POST, value = "/api/payments/{id}/refund")
     PaymentDto refund(@PathVariable("id") Long id);

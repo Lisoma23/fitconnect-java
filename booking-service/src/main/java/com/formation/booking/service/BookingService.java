@@ -291,13 +291,29 @@ public class BookingService {
 
     private void refundPayment(Booking booking) {
         try {
-            PaymentDto payment = paymentClientRefundCall(booking.getId());
-            if (payment == null) {
+            List<PaymentDto> payments = paymentClientFindByBookingIdCall(booking.getId());
+            if (payments == null || payments.isEmpty()) {
                 throw new ServiceUnavailableException("payment-service n'a pas retourne de paiement");
+            }
+            PaymentDto payment = payments.get(0);
+            if (payment != null && payment.getId() != null) {
+                paymentClientRefundCall(payment.getId());
             }
         } catch (FeignException ex) {
             throw new ServiceUnavailableException(ex.getMessage());
         }
+    }
+
+    @CircuitBreaker(name = "paymentService", fallbackMethod = "paymentClientFindByBookingIdFallback")
+    List<PaymentDto> paymentClientFindByBookingIdCall(Long bookingId) {
+        return paymentClient.findByBookingId(bookingId);
+    }
+
+    List<PaymentDto> paymentClientFindByBookingIdFallback(Long bookingId, Throwable t) {
+        if (t instanceof FeignException fe) {
+            throw fe;
+        }
+        throw new ServiceUnavailableException(t.getMessage());
     }
 
     @CircuitBreaker(name = "paymentService", fallbackMethod = "paymentClientRefundFallback")
