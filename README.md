@@ -4,25 +4,41 @@ FitConnect est une plateforme de réservation de cours de sport. Ce projet impl�
 
 ## Architecture
 
-```
-                    ┌──────────────────┐
-                    │   eureka-server   │  (:8761)
-                    └─────────▲────────┘
-                              │
-      ┌───────────────────────┼───────────────────────┐
-      │                       │                       │
-┌─────┴──────┐   ┌───────────┴──────────┐   ┌─────────┴─────────┐
-│ api-gateway │──▶│    class-service     │   │  booking-service  │
-│    :8080    │   │        :8091         │   │       :8092       │
-└─────┬──────┘   └───────────┬──────────┘   └─────────┬─────────┘
-      │                      │                       │
-      │                      ▼                       ▼
-      │            ┌─────────────────────┐   ┌──────────────────────┐
-      │            │   payment-service   │   │ notification-service │
-      │            │        :8093        │   │        :8094         │
-      │            └─────────────────────┘   └──────────────────────┘
-      ▼
-  config-server (:8888)
+```mermaid
+flowchart TB
+    subgraph Infra
+        EUREKA[eureka-server :8761]
+        CONFIG[config-server :8888]
+    end
+
+    subgraph Services
+        GATEWAY[api-gateway :8080]
+        CLASS[class-service :8091]
+        BOOKING[booking-service :8092]
+        PAYMENT[payment-service :8093]
+        NOTIF[notification-service :8094]
+    end
+
+    GATEWAY -->|lb://class-service| CLASS
+    GATEWAY -->|lb://booking-service| BOOKING
+    GATEWAY -->|lb://payment-service| PAYMENT
+    GATEWAY -->|lb://notification-service| NOTIF
+
+    BOOKING -->|GET /api/classes/{id} + PATCH increment/decrement| CLASS
+    BOOKING -->|POST /api/payments + refund| PAYMENT
+    BOOKING -->|POST /api/notifications| NOTIF
+
+    CLASS -->|register| EUREKA
+    BOOKING -->|register| EUREKA
+    PAYMENT -->|register| EUREKA
+    NOTIF -->|register| EUREKA
+    GATEWAY -->|register| EUREKA
+
+    CLASS -->|config| CONFIG
+    BOOKING -->|config| CONFIG
+    PAYMENT -->|config| CONFIG
+    NOTIF -->|config| CONFIG
+    GATEWAY -->|config| CONFIG
 ```
 
 ## Services
