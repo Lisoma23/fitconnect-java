@@ -31,7 +31,7 @@ public class FitnessClassService {
 
     @Transactional(readOnly = true)
     public Page<FitnessClassResponse> findAll(Pageable pageable) {
-        return findAll(null, null, null, null, null, pageable);
+        return fitnessClassRepository.findAll(pageable).map(FitnessClassMapper::toResponse);
     }
 
     @Transactional(readOnly = true)
