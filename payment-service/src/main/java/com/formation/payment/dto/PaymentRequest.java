@@ -1,6 +1,6 @@
-package com.fitconnect.paymentservice.dto;
+package com.formation.payment.dto;
 
-import com.fitconnect.paymentservice.model.PaymentMethod;
+import com.formation.payment.model.PaymentMethod;
 import jakarta.validation.constraints.DecimalMin;
 import jakarta.validation.constraints.NotNull;
 

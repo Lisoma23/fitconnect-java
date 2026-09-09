@@ -1,4 +1,4 @@
-package com.fitconnect.paymentservice.model;
+package com.formation.payment.model;
 
 public enum PaymentMethod {
     CREDIT_CARD,

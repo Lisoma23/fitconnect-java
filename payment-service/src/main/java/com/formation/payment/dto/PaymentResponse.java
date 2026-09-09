@@ -1,7 +1,7 @@
-package com.fitconnect.paymentservice.dto;
+package com.formation.payment.dto;
 
-import com.fitconnect.paymentservice.model.PaymentMethod;
-import com.fitconnect.paymentservice.model.PaymentStatus;
+import com.formation.payment.model.PaymentMethod;
+import com.formation.payment.model.PaymentStatus;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;

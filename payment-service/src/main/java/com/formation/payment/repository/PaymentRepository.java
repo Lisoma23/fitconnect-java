@@ -1,6 +1,6 @@
-package com.fitconnect.paymentservice.repository;
+package com.formation.payment.repository;
 
-import com.fitconnect.paymentservice.model.Payment;
+import com.formation.payment.model.Payment;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 

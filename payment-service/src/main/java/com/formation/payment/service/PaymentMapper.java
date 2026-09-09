@@ -1,9 +1,9 @@
-package com.fitconnect.paymentservice.service;
+package com.formation.payment.service;
 
-import com.fitconnect.paymentservice.dto.PaymentRequest;
-import com.fitconnect.paymentservice.dto.PaymentResponse;
-import com.fitconnect.paymentservice.model.Payment;
-import com.fitconnect.paymentservice.model.PaymentStatus;
+import com.formation.payment.dto.PaymentRequest;
+import com.formation.payment.dto.PaymentResponse;
+import com.formation.payment.model.Payment;
+import com.formation.payment.model.PaymentStatus;
 import org.springframework.stereotype.Component;
 
 @Component

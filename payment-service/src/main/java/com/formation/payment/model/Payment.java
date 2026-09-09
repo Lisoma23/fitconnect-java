@@ -1,4 +1,4 @@
-package com.fitconnect.paymentservice.model;
+package com.formation.payment.model;
 
 import jakarta.persistence.*;
 import java.math.BigDecimal;
