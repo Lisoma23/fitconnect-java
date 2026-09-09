@@ -34,6 +34,9 @@ public class Notification {
     @Enumerated(EnumType.STRING)
     private NotificationStatus status;
 
+    protected Notification() {
+    }
+
     public Notification(Long userId, String email, NotificationType type, String subject, String content,
             NotificationStatus status) {
         this.userId = userId;
@@ -98,6 +101,10 @@ public class Notification {
 
     public LocalDateTime getSentDate() {
         return sentDate;
+    }
+
+    public void setSentDate(LocalDateTime sentDate) {
+        this.sentDate = sentDate;
     }
 
     public NotificationStatus getStatus() {
