@@ -1,0 +1,8 @@
+@eurekaUrl = http://localhost:8761
+
+### Sante du serveur Eureka
+GET {{eurekaUrl}}/actuator/health
+
+### Liste des applications enregistrees (JSON)
+GET {{eurekaUrl}}/eureka/apps
+Accept: application/json
