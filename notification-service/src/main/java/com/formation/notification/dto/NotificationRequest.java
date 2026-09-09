@@ -1,6 +1,5 @@
 package com.formation.notification.dto;
 
-import com.formation.notification.model.NotificationStatus;
 import com.formation.notification.model.NotificationType;
 
 import jakarta.validation.constraints.Email;
@@ -28,9 +27,6 @@ public class NotificationRequest {
     @NotNull(message = "Content cannot be null")
     @NotBlank(message = "Content cannot be blank")
     private String content;
-
-    @NotNull(message = "Status cannot be null")
-    private NotificationStatus status;
 
     // Getters and Setters
     public Long getUserId() {
@@ -71,14 +67,6 @@ public class NotificationRequest {
 
     public void setContent(String content) {
         this.content = content;
-    }
-
-    public NotificationStatus getStatus() {
-        return status;
-    }
-
-    public void setStatus(NotificationStatus status) {
-        this.status = status;
     }
 
 }

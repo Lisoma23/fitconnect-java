@@ -107,7 +107,6 @@ class NotificationControllerIntegrationTest {
         request.setType(NotificationType.BOOKING_CONFIRMATION);
         request.setSubject("Booking confirmation");
         request.setContent("Your booking has been confirmed.");
-        request.setStatus(NotificationStatus.PENDING);
         return objectMapper.writeValueAsString(request);
     }
 

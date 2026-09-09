@@ -232,14 +232,16 @@ class BookingServiceTest {
         when(bookingRepository.findById(1L)).thenReturn(Optional.of(booking));
 
         PaymentDto payment = new PaymentDto();
-        payment.setStatus("REFUNDED");
-        when(paymentClient.refund(1L)).thenReturn(payment);
+        payment.setId(10L);
+        payment.setStatus("SUCCESS");
+        when(paymentClient.findByBookingId(1L)).thenReturn(java.util.List.of(payment));
         when(bookingRepository.save(any(Booking.class))).thenAnswer(invocation -> invocation.getArgument(0));
 
         BookingResponse result = bookingService.cancel(1L);
 
         assertThat(result.getStatus()).isEqualTo(BookingStatus.CANCELLED);
-        verify(paymentClient).refund(1L);
+        verify(paymentClient).findByBookingId(1L);
+        verify(paymentClient).refund(10L);
         verify(classClient).decrement(1L);
         verify(notificationClient).send(any(NotificationClient.NotificationRequest.class));
     }

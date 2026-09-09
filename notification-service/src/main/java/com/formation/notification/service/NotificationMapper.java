@@ -3,6 +3,7 @@ package com.formation.notification.service;
 import com.formation.notification.dto.NotificationRequest;
 import com.formation.notification.dto.NotificationResponse;
 import com.formation.notification.model.Notification;
+import com.formation.notification.model.NotificationStatus;
 
 public final class NotificationMapper {
 
@@ -11,7 +12,7 @@ public final class NotificationMapper {
 
     public static Notification toEntity(NotificationRequest request) {
         return new Notification(request.getUserId(), request.getEmail(), request.getType(), request.getSubject(),
-                request.getContent(), request.getStatus());
+                request.getContent(), NotificationStatus.PENDING);
     }
 
     public static NotificationResponse toResponse(Notification notification) {
