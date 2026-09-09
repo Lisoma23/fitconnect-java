@@ -8,7 +8,6 @@ import org.springframework.boot.test.context.SpringBootTest;
 
 import java.util.Set;
 
-import static com.formation.notification.model.NotificationStatus.PENDING;
 import static com.formation.notification.model.NotificationType.BOOKING_CONFIRMATION;
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -43,7 +42,7 @@ class NotificationRequestValidationTest {
 
         assertThat(violations)
                 .extracting(violation -> violation.getPropertyPath().toString())
-                .contains("userId", "email", "type", "subject", "content", "status");
+                .contains("userId", "email", "type", "subject", "content");
     }
 
     @Test
@@ -65,7 +64,6 @@ class NotificationRequestValidationTest {
         request.setType(BOOKING_CONFIRMATION);
         request.setSubject("Booking confirmation");
         request.setContent("Your booking has been confirmed.");
-        request.setStatus(PENDING);
         return request;
     }
 }
