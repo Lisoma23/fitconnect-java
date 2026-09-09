@@ -1,3 +1,5 @@
+Réalisé par HAZAMI Sofia, CHARRIER Faustine, TCHITOULA Louisan
+
 # FitConnect — Plateforme de Réservation de Cours de Sport
 
 FitConnect est une plateforme de réservation de cours de sport. Ce projet implémente une architecture **microservices** avec Spring Boot / Spring Cloud : 4 services métier orchestrés par un pattern **Saga** (réservation → paiement → confirmation).
