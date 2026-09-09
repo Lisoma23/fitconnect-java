@@ -7,6 +7,7 @@ import com.formation.booking.dto.BookingConfirmRequest;
 import com.formation.booking.dto.BookingRequest;
 import com.formation.booking.dto.BookingResponse;
 import com.formation.booking.dto.ClassDto;
+import com.formation.booking.dto.NotificationDto;
 import com.formation.booking.dto.PaymentDto;
 import com.formation.booking.exception.BookingAlreadyCompletedException;
 import com.formation.booking.exception.BookingNotFoundException;
@@ -19,6 +20,7 @@ import com.formation.booking.model.Booking;
 import com.formation.booking.model.BookingStatus;
 import com.formation.booking.repository.BookingRepository;
 import feign.FeignException;
+import io.github.resilience4j.circuitbreaker.annotation.CircuitBreaker;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -192,7 +194,7 @@ public class BookingService {
 
     private ClassDto fetchClass(Long classId) {
         try {
-            return classClient.getClassById(classId);
+            return classClientCall(classId);
         } catch (FeignException.NotFound ex) {
             throw new ClassNotFoundForBookingException(classId);
         } catch (FeignException ex) {
@@ -200,9 +202,21 @@ public class BookingService {
         }
     }
 
+    @CircuitBreaker(name = "classService", fallbackMethod = "classClientFallback")
+    ClassDto classClientCall(Long classId) {
+        return classClient.getClassById(classId);
+    }
+
+    ClassDto classClientFallback(Long classId, Throwable t) {
+        if (t instanceof FeignException fe) {
+            throw fe;
+        }
+        throw new ServiceUnavailableException(t.getMessage());
+    }
+
     private void incrementSpots(Long classId, int spots) {
         try {
-            classClient.increment(classId, spots);
+            classClientIncrementCall(classId, spots);
         } catch (FeignException.Conflict ex) {
             throw new NoSpotsAvailableException(classId);
         } catch (FeignException.NotFound ex) {
@@ -212,14 +226,38 @@ public class BookingService {
         }
     }
 
+    @CircuitBreaker(name = "classService", fallbackMethod = "classClientIncrementFallback")
+    void classClientIncrementCall(Long classId, int spots) {
+        classClient.increment(classId, spots);
+    }
+
+    void classClientIncrementFallback(Long classId, int spots, Throwable t) {
+        if (t instanceof FeignException fe) {
+            throw fe;
+        }
+        throw new ServiceUnavailableException(t.getMessage());
+    }
+
     private void decrementSpots(Long classId) {
         try {
-            classClient.decrement(classId);
+            classClientDecrementCall(classId);
         } catch (FeignException.NotFound ex) {
             throw new ClassNotFoundForBookingException(classId);
         } catch (FeignException ex) {
             throw new ServiceUnavailableException(ex.getMessage());
         }
+    }
+
+    @CircuitBreaker(name = "classService", fallbackMethod = "classClientDecrementFallback")
+    void classClientDecrementCall(Long classId) {
+        classClient.decrement(classId);
+    }
+
+    void classClientDecrementFallback(Long classId, Throwable t) {
+        if (t instanceof FeignException fe) {
+            throw fe;
+        }
+        throw new ServiceUnavailableException(t.getMessage());
     }
 
     private PaymentDto processPayment(Booking booking, BookingConfirmRequest request) {
@@ -233,15 +271,27 @@ public class BookingService {
                     request.getCardLastFour(),
                     request.getTransactionId()
             );
-            return paymentClient.processPayment(paymentRequest);
+            return paymentClientCall(paymentRequest);
         } catch (FeignException ex) {
             throw new ServiceUnavailableException(ex.getMessage());
         }
     }
 
+    @CircuitBreaker(name = "paymentService", fallbackMethod = "paymentClientFallback")
+    PaymentDto paymentClientCall(PaymentClient.PaymentRequest paymentRequest) {
+        return paymentClient.processPayment(paymentRequest);
+    }
+
+    PaymentDto paymentClientFallback(PaymentClient.PaymentRequest paymentRequest, Throwable t) {
+        if (t instanceof FeignException fe) {
+            throw fe;
+        }
+        throw new ServiceUnavailableException(t.getMessage());
+    }
+
     private void refundPayment(Booking booking) {
         try {
-            PaymentDto payment = paymentClient.refund(booking.getId());
+            PaymentDto payment = paymentClientRefundCall(booking.getId());
             if (payment == null) {
                 throw new ServiceUnavailableException("payment-service n'a pas retourne de paiement");
             }
@@ -250,15 +300,39 @@ public class BookingService {
         }
     }
 
+    @CircuitBreaker(name = "paymentService", fallbackMethod = "paymentClientRefundFallback")
+    PaymentDto paymentClientRefundCall(Long id) {
+        return paymentClient.refund(id);
+    }
+
+    PaymentDto paymentClientRefundFallback(Long id, Throwable t) {
+        if (t instanceof FeignException fe) {
+            throw fe;
+        }
+        throw new ServiceUnavailableException(t.getMessage());
+    }
+
     private void sendNotification(Long userId, String email, String type, String subject, String content) {
         try {
             NotificationClient.NotificationRequest request = new NotificationClient.NotificationRequest(
                     userId, email, type, subject, content
             );
-            notificationClient.send(request);
+            notificationClientCall(request);
         } catch (FeignException ex) {
             throw new ServiceUnavailableException(ex.getMessage());
         }
+    }
+
+    @CircuitBreaker(name = "notificationService", fallbackMethod = "notificationClientFallback")
+    NotificationDto notificationClientCall(NotificationClient.NotificationRequest request) {
+        return notificationClient.send(request);
+    }
+
+    NotificationDto notificationClientFallback(NotificationClient.NotificationRequest request, Throwable t) {
+        if (t instanceof FeignException fe) {
+            throw fe;
+        }
+        throw new ServiceUnavailableException(t.getMessage());
     }
 
     private Booking getBookingOrThrow(Long id) {
