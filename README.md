@@ -24,9 +24,9 @@ flowchart TB
     GATEWAY -->|lb://payment-service| PAYMENT
     GATEWAY -->|lb://notification-service| NOTIF
 
-    BOOKING -->|GET /api/classes/{id} + PATCH increment/decrement| CLASS
-    BOOKING -->|POST /api/payments + refund| PAYMENT
-    BOOKING -->|POST /api/notifications| NOTIF
+    BOOKING -->|"GET /api/classes/{id} + PATCH increment/decrement"| CLASS
+    BOOKING -->|"POST /api/payments + refund"| PAYMENT
+    BOOKING -->|"POST /api/notifications"| NOTIF
 
     CLASS -->|register| EUREKA
     BOOKING -->|register| EUREKA
