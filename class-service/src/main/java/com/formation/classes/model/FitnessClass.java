@@ -151,8 +151,8 @@ public class FitnessClass {
         return dateTime;
     }
 
-    public void setDateTime() {
-        this.dateTime = LocalDateTime.now();
+    public void setDateTime(LocalDateTime dateTime) {
+        this.dateTime = dateTime;
     }
 
     public ClassStatus getStatus() {

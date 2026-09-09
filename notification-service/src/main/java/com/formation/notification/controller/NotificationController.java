@@ -2,14 +2,13 @@ package com.formation.notification.controller;
 
 import com.formation.notification.dto.NotificationRequest;
 import com.formation.notification.dto.NotificationResponse;
-import com.formation.notification.model.Notification;
-import com.formation.notification.repository.NotificationRepository;
-import com.formation.notification.service.NotificationMapper;
+import com.formation.notification.service.NotificationService;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseStatus;
@@ -21,23 +20,30 @@ import java.util.List;
 @RequestMapping("/api/notifications")
 public class NotificationController {
 
-    private final NotificationRepository notificationRepository;
+    private final NotificationService notificationService;
 
-    public NotificationController(NotificationRepository notificationRepository) {
-        this.notificationRepository = notificationRepository;
+    public NotificationController(NotificationService notificationService) {
+        this.notificationService = notificationService;
     }
 
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
     public NotificationResponse create(@Valid @RequestBody NotificationRequest request) {
-        Notification notification = notificationRepository.save(NotificationMapper.toEntity(request));
-        return NotificationMapper.toResponse(notification);
+        return notificationService.send(request);
     }
 
     @GetMapping("/user/{userId}")
     public List<NotificationResponse> findByUserId(@PathVariable Long userId) {
-        return notificationRepository.findByUserId(userId).stream()
-                .map(NotificationMapper::toResponse)
-                .toList();
+        return notificationService.findByUserId(userId);
+    }
+
+    @GetMapping("/pending")
+    public List<NotificationResponse> findPending() {
+        return notificationService.findPending();
+    }
+
+    @PatchMapping("/{id}/retry")
+    public NotificationResponse retry(@PathVariable Long id) {
+        return notificationService.retry(id);
     }
 }
