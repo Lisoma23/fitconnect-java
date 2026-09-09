@@ -34,7 +34,7 @@ public class NotificationService {
     public List<NotificationResponse> findByUserId(Long userId) {
         List<Notification> notifications = notificationRepository.findByUserId(userId);
         if (notifications.isEmpty()) {
-            throw new NotificationNotFoundException(userId);
+            return List.of();
         }
         return notifications.stream()
                 .map(NotificationMapper::toResponse)
