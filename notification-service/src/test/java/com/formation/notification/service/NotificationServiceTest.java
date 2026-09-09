@@ -62,11 +62,12 @@ class NotificationServiceTest {
     }
 
     @Test
-    void findByUserIdWithoutNotificationsThrowsNotFoundException() {
+    void findByUserIdWithoutNotificationsReturnsEmptyList() {
         when(notificationRepository.findByUserId(99L)).thenReturn(List.of());
 
-        assertThatThrownBy(() -> notificationService.findByUserId(99L))
-                .isInstanceOf(NotificationNotFoundException.class);
+        List<NotificationResponse> responses = notificationService.findByUserId(99L);
+
+        assertThat(responses).isEmpty();
     }
 
     private NotificationRequest validRequest() {
